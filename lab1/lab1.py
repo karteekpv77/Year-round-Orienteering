@@ -76,12 +76,12 @@ def bfs(main_node, graph, season, max_depth):
     """
     is_winter = False
     is_spring = False
-    visited = []
+    visited = set()
     if season is 'winter':
         changed_terrain = (63, 208, 212)
         main_node.terrain = (63, 208, 212)
         is_winter = True
-        visited = [(main_node.x, main_node.y)]
+        visited.add((main_node.x, main_node.y))
     elif season is 'spring':
         changed_terrain = (139, 69, 19)
         elevation = main_node.z
@@ -98,14 +98,14 @@ def bfs(main_node, graph, season, max_depth):
                     (is_winter and connected_node.terrain == (0, 0, 255)) or (
                     is_spring and connected_node.terrain != (0, 0, 255) and (connected_node.z - elevation < 1))):
                 frontier.append(connected_node)
-                visited.append((connected_node.x, connected_node.y))
+                visited.add((connected_node.x, connected_node.y))
                 connected_node.terrain = changed_terrain
                 node.add_neighbor(connected_node,
                                   graph.get_cost(node.x, node.y, node.z, connected_node.x, connected_node.y,
                                                  connected_node.z))
 
         depth += 1
-    return visited
+    return list(visited)
 
 
 def search(src, dest, graph, elevations):
@@ -119,7 +119,7 @@ def search(src, dest, graph, elevations):
     """
     remaining = PriorityQueue()
     remaining.put((0 + get_heuristic(src, dest, graph), (src, None)))
-    visited = []
+    visited = set()
     came_from = {}
     total_cost = {}
     while not remaining.empty():
@@ -132,9 +132,9 @@ def search(src, dest, graph, elevations):
         if (min_node.x, min_node.y) in visited:
             continue
         if min_node.x == dest.x and min_node.y == dest.y:
-            visited.append((min_node.x, min_node.y))
+            visited.add((min_node.x, min_node.y))
             return came_from, total_cost
-        visited.append((min_node.x, min_node.y))
+        visited.add((min_node.x, min_node.y))
         for connected_node in min_node.get_connections():
             if (connected_node.x, connected_node.y) not in visited:
                 remaining.put((
